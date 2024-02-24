@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+    <title>2017 Economic Census</title>
+  </head>
+  <body onload="getData(23)">
+    <h1>2017 Economic Census</h1>
+    <h5>Data by profession and state</h5>
+    <br>
+    <div class="row">
+      <div class="col-12">
+        <div class="mb-3">
+          <label for="professionSelect" class="form-label">Select profession:</label>
+          <select class="form-select" id="professionSelect" onchange="getData(this.value)">
+            <option selected="selected" value="23">Construction</option>
+            <option value="52">Finance and Insurance</option>
+            <option value="53">Real Estate and Rental and Leasing</option>
+            <option value="61">Educational Services</option>
+          </select>
+        </div>
+
+        <div id="output">
+          <p>Loading data...</p>
+        </div>
+      </div>
+    </div>
+
+<script>
+    function getData(value) {
+        const apiURL = "https://api.census.gov/data/2017/ecnbasic?get=NAICS2017_LABEL,EMP,NAME&for=state:*&NAICS2017=" + value;
+    
+        fetch(apiURL)
+            .then(response => response.json())
+            .then(showData);
+    }
+    
+    function showData(data) {
+    
+        dataNoHeader = data.slice(1);
+    
+        dataNoHeader = dataNoHeader.sort();
+    
+        output = "<table class='table table-hover table-responsive w-auto'>";
+        output += "<thead><tr><th>State</th><th class='text-center'>Profession</th><th class='text-end'>Employees</th></tr></thead>";
+    
+        output += "<tbody>";
+    
+        for (state of dataNoHeader) {
+            let stateName = state[2];
+            let emp = Number(state[1]); 
+            let empTxt = new Intl.NumberFormat('en-US').format(emp);
+            let prof = state[0];
+            let profTxt = prof;
+    
+            output += `<tr><td>${stateName}</td><td class="text-end font-monospace">${profTxt}</td><td  class="text-end font-monospace">${empTxt}</td></tr>`;
+        }
+    
+        output += "</tbody></table>";
+        
+    
+        changeText("output", output);
+    }</script>
+</body>
+</html>
