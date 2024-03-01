@@ -3,59 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Data Table</title>
+    <title>Formatted Population Data Table</title>
     <style>
         table {
-            border-collapse: collapse;
-            width: 100%;
-            border: 1px solid #000;
+            border-spacing: 2px; 
+            border: 1px solid black; 
         }
         th, td {
-            border: 1px solid #000;
+            border: 1px solid black; 
             padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
+            text-align: center;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-             function fetchData() {
-                $.ajax({
-                    url: 'https://datausa.io/api/data?drilldowns=Nation&measures=Population',
-                    method: 'GET',
-                    success: function(response) {
-                        console.log(response);
-                        
-                        var data = response.data ? response.data : response;
-
-                        data.sort(function(a, b) {
-                            return a.Year.localeCompare(b.Year);
-                        });
-
-                        var tableHtml = '<h2>US Population</h2><table><thead><tr><th>Year</th><th>Population</th></tr></thead><tbody>';
-
-                        data.forEach(function(item) {
-                            tableHtml += '<tr><td>' + item.Year + '</td><td>' + item.Population + '</td></tr>';
-                        });
-
-                        tableHtml += '</tbody></table>';
-
-                        $('#data-table').html(tableHtml);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            }
-
-            fetchData();
-        });
-    </script>
+    
 </head>
 <body>
-    <div id="data-table"></div>
+
+<div id="data-table">Loading data...</div>
+
+<script>
+function fetchData() {
+    fetch('https://datausa.io/api/data?drilldowns=Nation&measures=Population')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            data.data.sort(function(a, b) {
+                return a.Year - b.Year;
+            });
+
+            var tableHtml = '<table>';
+            tableHtml += '<tr class="title-row"><td colspan="2">US Population</td></tr>';
+            tableHtml += '<tr><th>Year</th><th>Population</th></tr>';
+
+            for (var i = 0; i < data.data.length; i++) {
+                var item = data.data[i];
+                var formattedPopulation = parseInt(item.Population).toLocaleString();
+                tableHtml += `<tr><td>${item.Year}</td><td>${formattedPopulation}</td></tr>`;
+            }
+
+            tableHtml += '</table>';
+
+            document.getElementById('data-table').innerHTML = tableHtml;
+        })
+        .catch(function(error) {
+            console.log('Error:', error);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', fetchData);
+</script>
+
 </body>
 </html>
