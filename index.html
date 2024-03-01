@@ -10,55 +10,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>US Population</title>
     <!--Using borders and spacing to make my table look like the example given-->
-    <style> 
+    <style>
         table {
-            border-spacing: 2px; 
-            border: 1px solid black; 
+            border-spacing: 2px;
+            border: 1px solid black;
         }
-        th, td {
-            border: 1px solid black; 
+
+        th,
+        td {
+            border: 1px solid black;
             padding: 8px;
             text-align: center;
         }
     </style>
-    
 </head>
 <body>
-    
-<div id="data-table">Loading data...</div>
+    <div id="data-table">Loading data...</div>
+    <script>
+        //use fetch to retrieve api data, returns json
+        function fetchData() {
+            fetch('https://datausa.io/api/data?drilldowns=Nation&measures=Population')
+                .then(function (response) {
+                    return response.json();
+                })
+                //sort ascending order
+                .then(function (data) {
+                    data.data.sort(function (a, b) {
+                        return a.Year - b.Year;
+                    });
+                    // formatting table with shown catagories
+                    var tableHtml = '<table>';
+                    tableHtml += '<tr class="title-row"><td colspan="2">US Population</td></tr>';
+                    tableHtml += '<tr><th>Year</th><th>Population</th></tr>';
+                    // loop over array, stores each item and formats population
+                    for (var i = 0; i < data.data.length; i++) {
+                        var item = data.data[i];
+                        var formattedPopulation = parseInt(item.Population).toLocaleString();
+                        tableHtml += `<tr><td>${item.Year}</td><td>${formattedPopulation}</td></tr>`;
+                    }
 
-<script>
-    //use fetch to retrieve api data, returns json
-function fetchData() {
-    fetch('https://datausa.io/api/data?drilldowns=Nation&measures=Population')
-        .then(function(response) {
-            return response.json();
-        })
-        //sort ascending order
-        .then(function(data) {
-            data.data.sort(function(a, b) {
-                return a.Year - b.Year;
-            });
-            // formatting table with shown catagories
-            var tableHtml = '<table>';
-            tableHtml += '<tr class="title-row"><td colspan="2">US Population</td></tr>';
-            tableHtml += '<tr><th>Year</th><th>Population</th></tr>';
-            // loop over array, stores each item and formats population
-            for (var i = 0; i < data.data.length; i++) {
-                var item = data.data[i];
-                var formattedPopulation = parseInt(item.Population).toLocaleString();
-                tableHtml += `<tr><td>${item.Year}</td><td>${formattedPopulation}</td></tr>`;
-            }
+                    tableHtml += '</table>';
 
-            tableHtml += '</table>';
+                    document.getElementById('data-table').innerHTML = tableHtml;
+                })
 
-            document.getElementById('data-table').innerHTML = tableHtml;
-        })
+        }
 
-}
-
-document.addEventListener('DOMContentLoaded', fetchData);
-</script>
-
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
 </body>
 </html>
